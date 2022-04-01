@@ -1,0 +1,41 @@
+img_label:
+  type: QLabel
+  width: 720
+  height: 720
+
+text_label:
+  type: QLabel
+  alignment: center
+  fontFamily: times
+  fontPoint: 16
+  fontBold: True
+
+button:
+  type: QPushButton
+  fontFamily: times
+  fontPoint: 20
+  fontBold: True
+
+zoom_slider:
+  type: QSlider
+  orientation: h  #(h or v)
+  max: 6
+  min: 0
+  default: 0
+  tickposition: both  #(above, below, left, right or both)  
+
+move_slider:
+  type: QSlider
+  orientation: h  #(h or v)
+  max: 8
+  min: 0
+  default: 4
+  tickposition: both  #(above, below, left, right or both)  
+
+bokashi_slider:
+  type: QSlider
+  orientation: h  #(h or v)
+  max: 3
+  min: 0
+  default: 0
+  tickposition: both  #(above, below, left, right or both)
