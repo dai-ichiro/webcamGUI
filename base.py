@@ -1,8 +1,34 @@
+import cv2
+from PySide6.QtCore import Qt, Signal, Slot, QThread, QSize
 from PySide6.QtWidgets import QMainWindow, QApplication, QPushButton, QLabel, QHBoxLayout, QWidget
+from PySide6.QtGui import QImage, QPixmap
 
-class SecondWindow(QMainWindow):
+class VideoThread(QThread):
+
+    change_pixmap_signal = Signal(QImage)
+    playing = True
+
+    def run(self):
+        cap = cv2.VideoCapture(0)
+        while self.playing:
+            ret, frame = cap.read()
+            if ret:
+                h, w, ch = frame.shape
+                bytesPerLine = ch * w
+                image = QImage(frame, w, h, bytesPerLine, QImage.Format.Format_BGR888)
+                self.change_pixmap_signal.emit(image)
+        cap.release()
+
+    def stop(self):
+        self.playing = False
+        self.wait()
+
+class SubWindow(QMainWindow):
+    video_size = QSize(640, 480)
     def __init__(self):
         super().__init__()
+        self.setFixedSize(QSize(self.video_size))
+        self.setWindowFlags(Qt.FramelessWindowHint)
         self.label1 = QLabel()
         self.setCentralWidget(self.label1)
 
@@ -10,17 +36,21 @@ class Window(QMainWindow):
 
     def __init__(self):
         super().__init__()    
+        self.secondWindow = SubWindow()
+        self.secondWindow.show()
+
+        self.thread = VideoThread()
+        self.thread.change_pixmap_signal.connect(self.update_image)
+        self.thread.start()
+
         self.initUI()
 
     def initUI(self):
-        self.secondWindow = SecondWindow()
-
+        
         self.button1 = QPushButton('push')
-        self.button1.clicked.connect(self.clickedButton1)
         
         self.button2 = QPushButton('change_label')
-        self.button2.clicked.connect(self.clickedButton2)
-
+        
         layout = QHBoxLayout()
         layout.addWidget(self.button1)
         layout.addWidget(self.button2)
@@ -30,13 +60,15 @@ class Window(QMainWindow):
         
         self.setCentralWidget(mainWidget)
 
-    def clickedButton1(self):
-        self.secondWindow.show()
-        self.secondWindow.label1.setText('aaa')
+    def closeEvent(self, e):
+       self.thread.stop()
+       self.secondWindow.close()
+       e.accept()
     
-    def clickedButton2(self):
-        self.secondWindow.hide()
-        
+    @Slot(QImage)
+    def update_image(self, image):
+        self.secondWindow.label1.setPixmap(QPixmap.fromImage(image))
+     
 if __name__ == "__main__":
     app = QApplication([])
     ex =Window()
