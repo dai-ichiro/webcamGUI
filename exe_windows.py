@@ -113,7 +113,7 @@ class ImageWindow(QMainWindow):
 
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
         delta = QPointF(event.globalPosition() - self.oldPosition)
-        self.move(int(self.x() + delta.x()), int(self.y() + delta.y()))
+        self.move(self.x() + delta.x(), self.y() + delta.y())
         self.oldPosition = event.globalPosition()
 
 class ControlWindow(QMainWindow):
